@@ -98,9 +98,10 @@ export default class SetsGenerator {
   firstOfRHS(RHS) {
     let firstSet = {};
 
-    for (let i = 0; i < RHS.length; i++) {
-      let productionSymbol = RHS[i];
-
+    var i = 0;
+    for (; i < RHS.length; i++) {
+      var productionSymbol = RHS[i];
+      
       // Direct epsilon goes to the First set.
       if (productionSymbol.isEpsilon()) {
         firstSet[EPSILON] = true;
@@ -108,24 +109,25 @@ export default class SetsGenerator {
       }
 
       // Calculate First of current symbol on RHS.
-      let firstOfCurrent = this.firstOf(productionSymbol);
+      var firstOfCurrent = this.firstOf(productionSymbol);
 
       // Put the First set of this non-terminal in our set,
       // excluding the EPSILON.
       this._mergeSets(firstSet, firstOfCurrent, EXCLUDE_EPSILON);
+   
+      const hasEpsilon = this._grammar._nonTerminalsMap[productionSymbol.getSymbol()]?.hasDirectEpsilon;
 
       // And if there was no EPSILON, we're done (otherwise, we
       // don't break the loop, and proceed to the next symbol of the RHS.
-      if (!firstOfCurrent.hasOwnProperty(EPSILON)) {
+      if (!firstOfCurrent.hasOwnProperty(EPSILON) && !hasEpsilon) {
         break;
       }
 
-      // If all symbols on RHS are eliminated, or the last
-      // symbol contains EPSILON, add it to the set.
-      else if (i === RHS.length - 1) {
-        firstSet[EPSILON] = true;
-      }
     }
+    // If all symbols on RHS are eliminated, or the last
+    // symbol contains EPSILON, add it to the set.
+    if(i === RHS.length)
+      firstSet[EPSILON] = true;
 
     return firstSet;
   }

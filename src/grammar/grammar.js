@@ -10,6 +10,7 @@ import LexGrammar from './lex-grammar';
 import LexRule from './lex-rule';
 import LexParser from '../generated/lex-parser.gen.js';
 import Production from './production';
+import { EPSILON } from '../special-symbols.js';
 
 import colors from 'colors';
 import fs from 'fs';
@@ -391,18 +392,25 @@ export default class Grammar {
   getNonTerminals() {
     if (!this._nonTerminals) {
       this._nonTerminals = [];
-
+      
       this._nonTerminalsMap = {};
-
+      
       this._bnf.forEach(production => {
-        if (production.isAugmented()) {
+        if (production.isAugmented()) 
           return;
-        }
+        
         let nonTerminal = production.getLHS();
+
+        // Function Helper
+        const isEpsilon = (production) => production._RHS.length === 1 && production._RHS[0].getSymbol() === EPSILON;
+
+        // Mark Non-Terminal And Check If It Contains Direct Epsilon RHS
         if (!this._nonTerminalsMap.hasOwnProperty(nonTerminal.getSymbol())) {
-          this._nonTerminalsMap[nonTerminal.getSymbol()] = true;
+          this._nonTerminalsMap[nonTerminal.getSymbol()] = {hasDirectEpsilon: isEpsilon(production)};
           this._nonTerminals.push(nonTerminal);
-        }
+        } else 
+          if(isEpsilon(production)) 
+            this._nonTerminalsMap[nonTerminal.getSymbol()] = {hasDirectEpsilon: true};
       });
     }
 
