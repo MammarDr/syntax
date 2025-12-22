@@ -84,7 +84,7 @@ export default class SetsGenerator {
 
     let productionsForSymbol = this._grammar.getProductionsForSymbol(symbol);
 
-    productionsForSymbol.forEach(production => {
+    productionsForSymbol.forEach((production) => {
       let RHS = production.getRHS();
       this._mergeSets(firstSet, this.firstOfRHS(RHS));
     });
@@ -97,11 +97,10 @@ export default class SetsGenerator {
    */
   firstOfRHS(RHS) {
     let firstSet = {};
-
-    var i = 0;
+    let i = 0;
     for (; i < RHS.length; i++) {
-      var productionSymbol = RHS[i];
-      
+      let productionSymbol = RHS[i];
+
       // Direct epsilon goes to the First set.
       if (productionSymbol.isEpsilon()) {
         firstSet[EPSILON] = true;
@@ -109,25 +108,27 @@ export default class SetsGenerator {
       }
 
       // Calculate First of current symbol on RHS.
-      var firstOfCurrent = this.firstOf(productionSymbol);
+      let firstOfCurrent = this.firstOf(productionSymbol);
 
       // Put the First set of this non-terminal in our set,
       // excluding the EPSILON.
       this._mergeSets(firstSet, firstOfCurrent, EXCLUDE_EPSILON);
-   
-      const hasEpsilon = this._grammar._nonTerminalsMap[productionSymbol.getSymbol()]?.hasDirectEpsilon;
+
+      const hasEpsilon =
+        this._grammar._nonTerminalsMap[productionSymbol.getSymbol()]
+          ?.hasDirectEpsilon;
 
       // And if there was no EPSILON, we're done (otherwise, we
       // don't break the loop, and proceed to the next symbol of the RHS.
       if (!firstOfCurrent.hasOwnProperty(EPSILON) && !hasEpsilon) {
         break;
       }
-
     }
     // If all symbols on RHS are eliminated, or the last
     // symbol contains EPSILON, add it to the set.
-    if(i === RHS.length)
+    if (i === RHS.length) {
       firstSet[EPSILON] = true;
+    }
 
     return firstSet;
   }
@@ -175,7 +176,7 @@ export default class SetsGenerator {
     // symbol is used (i.e. where it appears on RHS).
     let productionsWithSymbol = this._grammar.getProductionsWithSymbol(symbol);
 
-    productionsWithSymbol.forEach(production => {
+    productionsWithSymbol.forEach((production) => {
       let RHS = production.getRHSSymbols();
       let symbolIndex;
 
@@ -231,7 +232,7 @@ export default class SetsGenerator {
     this._predictSets = {};
     debug.time('Building Predict sets');
 
-    this._grammar.getProductions().forEach(production => {
+    this._grammar.getProductions().forEach((production) => {
       let LHS = production.getLHS();
       let RHS = production.getRHS();
 
@@ -305,7 +306,7 @@ export default class SetsGenerator {
    * Builds a set based on the `builder` function.
    */
   _buildSet(builder) {
-    this._grammar.getProductions().forEach(production => {
+    this._grammar.getProductions().forEach((production) => {
       builder.call(this, production.getLHS());
     });
   }
