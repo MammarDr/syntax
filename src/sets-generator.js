@@ -114,15 +114,20 @@ export default class SetsGenerator {
       // excluding the EPSILON.
       this._mergeSets(firstSet, firstOfCurrent, EXCLUDE_EPSILON);
 
-      const hasEpsilon =
-        this._grammar._nonTerminalsMap[productionSymbol.getSymbol()]
-          ?.hasDirectEpsilon;
+      const nonTerminal =
+        this._grammar._nonTerminalsMap[productionSymbol.getSymbol()];
 
-      // And if there was no EPSILON, we're done (otherwise, we
-      // don't break the loop, and proceed to the next symbol of the RHS.
-      if (!firstOfCurrent.hasOwnProperty(EPSILON) && !hasEpsilon) {
-        break;
+      // And if there was EPSILON, don't break the loop
+      // proceed to the next symbol of the RHS (otherwise, we
+      // are done).
+      if (
+        firstOfCurrent.hasOwnProperty(EPSILON) ||
+        (nonTerminal && nonTerminal.hasDirectEpsilon)
+      ) {
+        continue;
       }
+
+      break;
     }
     // If all symbols on RHS are eliminated, or the last
     // symbol contains EPSILON, add it to the set.
